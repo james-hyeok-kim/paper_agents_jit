@@ -1,0 +1,27 @@
+{
+  "meta": {
+    "model": "JiT-B/16",
+    "steps": 50,
+    "batch": 16,
+    "n_per_config": 64,
+    "cfg": 3.0
+  },
+  "baseline": {
+    "median_ms": 48.17,
+    "mean_ms": 47.61,
+    "std_ms": 5.34,
+    "speedup": 1.0
+  },
+  "K3_tbased": {
+    "median_ms": 325.75,
+    "mean_ms": 313.42,
+    "std_ms": 198.42,
+    "speedup": 0.1479
+  },
+  "K3_periodic": {
+    "median_ms": 42.5,
+    "mean_ms": 57.25,
+    "std_ms": 22.45,
+    "speedup": 1.1334
+  }
+}
