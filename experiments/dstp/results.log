@@ -1,0 +1,66 @@
+GPU: NVIDIA B200
+모델 로딩 중...
+모델 로딩 완료
+GPU 워밍업 중...
+워밍업 완료
+
+=== BASELINE ===
+  [32/128] 414.1 ms/img
+  [64/128] 247.1 ms/img
+  [96/128] 447.9 ms/img
+  [128/128] 135.8 ms/img
+베이스라인: 138.1 ms/img (median, std=155.7)
+IS (baseline): 11.093
+
+=== Step-Skip: K=2, policy=periodic ===
+  [32/128] 148.6 ms/img
+  [64/128] 85.6 ms/img
+  [96/128] 68.6 ms/img
+  [128/128] 100.5 ms/img
+K2_periodic: 100.5 ms/img (median) | speedup: 1.374x
+IS: 10.881  (baseline: 11.093, drop: 0.212)
+
+=== Step-Skip: K=3, policy=periodic ===
+  [32/128] 85.8 ms/img
+  [64/128] 54.2 ms/img
+  [96/128] 304.9 ms/img
+  [128/128] 52.9 ms/img
+K3_periodic: 65.3 ms/img (median) | speedup: 2.116x
+IS: 10.821  (baseline: 11.093, drop: 0.272)
+
+=== Step-Skip: K=2, policy=t_based ===
+  [32/128] 128.3 ms/img
+  [64/128] 279.0 ms/img
+  [96/128] 247.8 ms/img
+  [128/128] 119.6 ms/img
+K2_tbased: 107.6 ms/img (median) | speedup: 1.284x
+IS: 11.068  (baseline: 11.093, drop: 0.026)
+
+=== Step-Skip: K=3, policy=t_based ===
+  [32/128] 56.6 ms/img
+  [64/128] 119.8 ms/img
+  [96/128] 92.4 ms/img
+  [128/128] 148.1 ms/img
+K3_tbased: 90.2 ms/img (median) | speedup: 1.531x
+IS: 10.998  (baseline: 11.093, drop: 0.095)
+
+======================================================================
+DSTP STEP-SKIP RESULTS
+======================================================================
+Config                        ms/img    speedup       IS    IS drop
+----------------------------------------------------------------------
+baseline                       138.1     1.000x   11.093      0.000
+K2_periodic                    100.5     1.375x   10.881      0.212
+K3_periodic                     65.3     2.116x   10.821      0.272
+K2_tbased                      107.6     1.284x   11.068      0.026
+K3_tbased                       90.2     1.531x   10.998      0.095
+
+판정 기준: speedup >= 1.3x AND IS_drop <= 5.0
+  K2_periodic: GO  (speedup=1.375x, IS_drop=0.212)
+  K3_periodic: GO  (speedup=2.116x, IS_drop=0.272)
+  K2_tbased: NO-GO  (speedup=1.284x, IS_drop=0.026)
+  K3_tbased: GO  (speedup=1.531x, IS_drop=0.095)
+
+최종 VERDICT: GO
+
+결과 저장: /home/jovyan/workspace/paper_agents_jit/experiments/dstp/results.json

@@ -11,6 +11,82 @@ You have access to Bash, Read, Write, Edit, and WebSearch. Use them freely. The 
 - 4× GPUs available (check with `nvidia-smi`)
 - Working directory: `/home/jovyan/workspace/paper_agents_jit/`
 
+## GPU 배정 처리
+
+jit-experiment-scheduler가 호출할 때 다음 파라미터를 전달한다. **scheduler 없이 단독 실행 시에는 직접 nvidia-smi로 free GPU를 선택**한다.
+
+| 파라미터 | 의미 | 예시 |
+|----------|------|------|
+| `ASSIGNED_GPUS` | 사용할 GPU ID | `"0"`, `"0,1"`, `"2,3"` |
+| `GPU_COUNT` | GPU 수 | `1`, `2`, `4` |
+| `RUN_MODE` | 실행 방식 | `single` / `ddp` / `background` |
+
+### 실행 방식별 명령어
+
+```bash
+# single (기본)
+CUDA_VISIBLE_DEVICES=<ASSIGNED_GPUS> python3 run_experiment.py 2>&1 | tee results.txt
+
+# ddp (멀티 GPU)
+CUDA_VISIBLE_DEVICES=<ASSIGNED_GPUS> torchrun --nproc_per_node=<GPU_COUNT> \
+  run_experiment.py 2>&1 | tee results.txt
+
+# background (scheduler가 병렬 실행 시)
+CUDA_VISIBLE_DEVICES=<ASSIGNED_GPUS> python3 run_experiment.py \
+  > results.txt 2>&1 &
+echo "PID: $!"
+```
+
+### 단독 실행 시 GPU 자동 선택
+
+scheduler 없이 단독 호출된 경우, 실험 시작 전 free GPU를 직접 선택한다:
+
+```bash
+python3 - <<'EOF'
+import subprocess, json
+
+out = subprocess.check_output([
+    "nvidia-smi",
+    "--query-gpu=index,memory.free,utilization.gpu",
+    "--format=csv,noheader,nounits"
+]).decode()
+
+best = None
+for line in out.strip().split("\n"):
+    idx, free, util = [x.strip() for x in line.split(",")]
+    free, util = int(free), int(util)
+    if util < 15 and free > 10240:
+        if best is None or free > best["free"]:
+            best = {"id": idx, "free_mb": free, "util": util}
+
+if best:
+    print(f"선택된 GPU: {best['id']} (여유 메모리: {best['free_mb']/1024:.1f} GB, 사용률: {best['util']}%)")
+else:
+    print("경고: Free GPU 없음 — 가장 여유 있는 GPU 사용")
+EOF
+```
+
+## 디렉토리 규칙 (항상 준수)
+
+```
+experiments/<slug>/          ← 사용자가 직접 확인하는 모든 것
+  run_experiment.py          ← 실험 스크립트
+  results.txt                ← 전체 로그 (tee 출력)
+  results.json               ← 구조화된 측정값
+  figures/                   ← 그래프, 플롯 (PNG/SVG)
+  README.md                  ← 한글 실험 설명 (자동 생성/갱신)
+
+/data/jameskimh/<slug>/      ← 용량이 큰 파일 (모델, 데이터, 샘플)
+  checkpoints/               ← 모델 체크포인트
+  pretrained/                ← 다운로드한 사전학습 가중치
+  samples/                   ← 생성된 샘플 이미지
+  datasets/                  ← 다운로드한 데이터셋
+```
+
+- 코드·로그·그래프 → `experiments/<slug>/`
+- 모델 가중치·사전학습 데이터·샘플 이미지 → `/data/jameskimh/<slug>/`
+- 디렉토리가 없으면 실험 시작 전에 `mkdir -p`로 생성
+
 ## Core Principle: Smallest Experiment That Gives a Real Signal
 
 Always start with the **fastest possible proxy**:
@@ -32,7 +108,14 @@ python3 -c "import torch; print(torch.cuda.device_count(), torch.cuda.get_device
 pip install diffusers transformers accelerate timm einops torchmetrics --quiet
 ```
 
-### Step 3: Write Minimal Experiment Code
+### Step 3: 디렉토리 생성 및 실험 코드 작성
+```bash
+mkdir -p /home/jovyan/workspace/paper_agents_jit/experiments/<slug>/figures
+mkdir -p /data/jameskimh/<slug>/checkpoints
+mkdir -p /data/jameskimh/<slug>/pretrained
+mkdir -p /data/jameskimh/<slug>/samples
+```
+
 Write to `/home/jovyan/workspace/paper_agents_jit/experiments/<slug>/run_experiment.py`.
 
 Script must:
@@ -40,6 +123,8 @@ Script must:
 - Use `torch.cuda.synchronize()` + `time.perf_counter()` for timing
 - Warmup 5 runs, measure 20 runs, report mean ± std
 - Print results as JSON
+- Save any graphs to `figures/` subdirectory
+- Save model checkpoints / pretrained weights / sample images to `/data/jameskimh/<slug>/`
 
 ### Step 4: Run & Collect Results
 ```bash
@@ -49,7 +134,63 @@ python3 run_experiment.py 2>&1 | tee results.txt
 
 Fix errors and re-run. Do not give up after one error.
 
-### Step 5: Report Results
+### Step 5: 한글 README 작성/갱신
+실험이 완료되면 **반드시** `experiments/<slug>/README.md`를 한글로 작성하거나 갱신한다.
+기존 README가 있으면 덮어쓰지 말고 해당 실험 결과 섹션만 추가/수정한다.
+
+README 형식:
+```markdown
+# 실험: [아이디어 이름]
+
+**날짜**: YYYY-MM-DD  
+**상태**: 진행중 🔄 / 완료 ✅ / 실패 ❌  
+**담당 GPU**: [nvidia-smi 출력 기반]
+
+## 가설
+[실험이 증명하려는 한 문장]
+
+## 실험 목록
+
+| # | 실험명 | 상태 | 핵심 결과 |
+|---|--------|------|-----------|
+| 1 | [name] | ✅ 완료 | X.Xx 속도향상 |
+| 2 | [name] | 🔄 진행중 | — |
+
+## 결과 요약
+
+### [실험 이름] (YYYY-MM-DD)
+**설정**: [모델, 해상도, 배치크기, GPU]
+
+| 항목 | 베이스라인 | 제안 방법 | 향상 |
+|------|-----------|-----------|------|
+| 레이턴시 (ms) | X.X ± X.X | X.X ± X.X | **X.Xx** |
+| 토큰/초 | X,XXX | X,XXX | +XX% |
+| FID (proxy) | X.X | X.X | ΔX.X |
+| GPU 메모리 (GB) | X.X | X.X | -XX% |
+
+**판정**: GO ✅ / WEAK GO ⚠️ / NO GO ❌  
+**다음 단계**: [구체적 액션]
+
+## 파일 구조
+```
+experiments/<slug>/
+  run_experiment.py     — 실험 스크립트
+  results.txt           — 전체 실행 로그
+  results.json          — 구조화된 측정값
+  figures/              — 그래프 (latency_curve.png 등)
+  README.md             — 이 파일
+
+/data/jameskimh/<slug>/
+  checkpoints/          — 모델 체크포인트
+  pretrained/           — 사전학습 가중치
+  samples/              — 생성 샘플 이미지
+```
+
+## 비고
+[특이사항, 실패 원인, 우회 방법 등]
+```
+
+### Step 6: Report Results
 Return results in the standard format below.
 
 ---
@@ -214,6 +355,7 @@ Always end with this structured result block:
 - [GO / WEAK GO / NO GO]
 - Reason: [one sentence]
 - Next step: [what to run next if GO, what to change if NO GO]
+- If results are ready for paper: run **jit-doc-organizer** to format into publication-quality tables
 ```
 
 ---
@@ -232,6 +374,9 @@ Always end with this structured result block:
 3. **Save scripts** in `/home/jovyan/workspace/paper_agents_jit/experiments/<slug>/`
 4. **Log with tee** — `python3 run_experiment.py 2>&1 | tee results.txt`
 5. **Respond in Korean** when user writes in Korean
+6. **README는 항상 한글로** — 모든 실험 후 `experiments/<slug>/README.md` 갱신 필수
+7. **경로 규칙 준수** — 그래프/코드/로그는 `experiments/`, 모델/데이터/샘플은 `/data/jameskimh/`
+8. **scheduler 신호** — jit-experiment-scheduler가 호출한 경우, 완료 후 `SCHEDULER_CONTINUE` 또는 `SCHEDULER_NEED_INPUT: [이유]`를 마지막 줄에 출력
 
 ## Memory
 

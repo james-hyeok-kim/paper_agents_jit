@@ -1,0 +1,32 @@
+/home/jovyan/workspace/Workspace_JiT/model_jit.py:99: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=False):
+GPU: NVIDIA B200
+
+============================================================
+모델: JiT-B/16  |  tokens/image: 256
+기존 샘플 사용: /data/jameskimh/ratba/sanity_jit-b-16 (1000장)
+시간 측정을 위해 소규모 재생성 중 (16장)...
+  [16/16] 생성 완료
+/home/jovyan/.local/lib/python3.11/site-packages/torch_fidelity/datasets.py:16: UserWarning: TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, use tensor.untyped_storage() instead of tensor.storage()
+  img = torch.ByteTensor(torch.ByteStorage.from_buffer(img.tobytes())).view(height, width, 3)
+생성 완료: 676.3s (1.48 img/s, 676.3 ms/img)
+FID 계산 중...
+/home/jovyan/workspace/paper_agents_jit/experiments/ratba/sanity_probe.py:214: DeprecationWarning: The `disp` argument is deprecated and will be removed in SciPy 1.18.0.
+  covmean, _ = scipy.linalg.sqrtm(sigma_gen.dot(sigma_ref), disp=False)
+FID: 175.3769  IS: 50.1829
+
+============================================================
+모델: JiT-B/32  |  tokens/image: 64
+체크포인트 로드: /data/jameskimh/james_jit_pretrained/jit-h-16/jit-b-32/checkpoint-last.pth
+Traceback (most recent call last):
+  File "/home/jovyan/workspace/paper_agents_jit/experiments/ratba/sanity_probe.py", line 334, in <module>
+    main()
+  File "/home/jovyan/workspace/paper_agents_jit/experiments/ratba/sanity_probe.py", line 265, in main
+    model, args = load_jit_model(model_name, ckpt_path, device, cfg=CFG)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jovyan/workspace/paper_agents_jit/experiments/ratba/sanity_probe.py", line 81, in load_jit_model
+    model.load_state_dict(ema_state_dict, strict=False)
+  File "/opt/conda/lib/python3.11/site-packages/torch/nn/modules/module.py", line 2629, in load_state_dict
+    raise RuntimeError(
+RuntimeError: Error(s) in loading state_dict for Denoiser:
+	size mismatch for net.pos_embed: copying a param with shape torch.Size([1, 256, 768]) from checkpoint, the shape in current model is torch.Size([1, 64, 768]).

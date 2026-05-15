@@ -1,0 +1,58 @@
+{
+  "baseline": {
+    "ms_per_img_median": 138.13,
+    "ms_std": 155.74,
+    "IS": 11.0933,
+    "num_images": 128,
+    "num_steps": 20
+  },
+  "K2_periodic": {
+    "K": 2,
+    "policy": "periodic",
+    "T_split": 0.5,
+    "ms_per_img_median": 100.49,
+    "ms_std": 385.42,
+    "IS": 10.8809,
+    "speedup": 1.3745,
+    "IS_drop": 0.2123,
+    "visual_check": "WEAK — background loss visible (00006: second stingray and kelp missing)"
+  },
+  "K3_periodic": {
+    "K": 3,
+    "policy": "periodic",
+    "T_split": 0.5,
+    "ms_per_img_median": 65.29,
+    "ms_std": 101.01,
+    "IS": 10.821,
+    "speedup": 2.1156,
+    "IS_drop": 0.2722,
+    "visual_check": "FAIL — severe composition and background loss on 3/4 checked samples (00000, 00006, 00010)"
+  },
+  "K2_tbased": {
+    "K": 2,
+    "policy": "t_based",
+    "T_split": 0.5,
+    "ms_per_img_median": 107.56,
+    "ms_std": 66.44,
+    "IS": 11.0676,
+    "speedup": 1.2841,
+    "IS_drop": 0.0257,
+    "visual_check": "PASS — visually identical to baseline on all 4 checked samples"
+  },
+  "K3_tbased": {
+    "K": 3,
+    "policy": "t_based",
+    "T_split": 0.5,
+    "ms_per_img_median": 90.22,
+    "ms_std": 41.16,
+    "IS": 10.9982,
+    "speedup": 1.5309,
+    "IS_drop": 0.0951,
+    "visual_check": "PASS — visually indistinguishable from baseline on all 4 checked samples"
+  },
+  "verdict": "GO",
+  "recommended_config": "K3_tbased",
+  "recommended_config_reason": "1.53x speedup with no visible quality degradation on visual inspection. K3_periodic achieves 2.12x but shows severe composition loss. IS-at-20-steps is insufficient signal; visual check is required.",
+  "timing_caveat": "B200 timing std often exceeds median. Numbers are directionally correct (consistent with FLOP-skip predictions) but not precision measurements. Use median values only.",
+  "quality_caveat": "IS measured at 20 steps with 128 images is too coarse. IS drop thresholds passing does not guarantee visual quality. FID-50K at 100 steps needed for paper."
+}

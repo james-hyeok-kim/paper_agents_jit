@@ -66,6 +66,21 @@ A good experiment plan proves the core claim with the least amount of work, incl
 | [Risk] | High/Med/Low | [What to do] |
 ```
 
+## 디렉토리 규칙
+
+계획에 항상 다음 경로 규칙을 명시한다:
+
+```
+experiments/<slug>/          ← 사용자가 확인하는 파일 (코드, 로그, 그래프, README)
+/data/jameskimh/<slug>/      ← 용량 큰 파일 (모델 체크포인트, 사전학습 가중치, 샘플 이미지)
+```
+
+각 실험 단계 계획에 포함할 것:
+- 어떤 사전학습 모델이 필요한지 (`/data/jameskimh/<slug>/pretrained/`에 저장)
+- 생성 샘플 저장 위치 (`/data/jameskimh/<slug>/samples/`)
+- 결과 그래프 저장 위치 (`experiments/<slug>/figures/`)
+- 실험 완료 후 README 갱신 여부 (항상 Yes — 한글로)
+
 ## JiT/PixelDiT-Specific Benchmarks
 
 ### Standard Benchmarks
@@ -74,11 +89,24 @@ A good experiment plan proves the core claim with the least amount of work, incl
 - **MS-COCO** — for text-conditioned variants
 
 ### Key Baseline Models
-Always benchmark against at least one from each category:
-- **Autoregressive**: LlamaGen, MAR, MAGE, LlamaGen-XL
-- **Masked generation**: MaskGIT, MAGE
-- **Pixel diffusion**: PixelDiT variants, Paella
-- **Your proposed method**
+
+**필수 비교 대상 (없으면 리뷰어 거절)**:
+- **JiT** (arXiv:2511.13720) — clean x₀ 예측 pixel-space baseline, Kaiming He
+- **PixelDiT** (arXiv:2511.20645, CVPR 2026 Oral) — FID 1.61@256, 1.81@512 품질 기준점
+- **DiP** (arXiv:2511.18822) — FID 1.79@256, **10× 인퍼런스 속도** 기준점
+
+**주제에 따라 추가**:
+- **EPG / There is No VAE** (arXiv:2510.12586) — FID 1.58@256, 품질 주장 시 비교 필수
+- **DeCo** (arXiv:2511.19365, CVPR 2026) — 주파수 분리 관련 아이디어라면 필수
+- **PixelGen** (arXiv:2602.02493) — 손실 함수/학습 전략 관련 아이디어라면 필수
+- **FREPix** (arXiv:2605.06421) — 주파수/flow matching 관련이라면 필수
+- **PixelFlow** (arXiv:2504.07963) — 다중 해상도/cascade 관련이라면 필수
+- **HDiT** (arXiv:2401.11605, ICML 2024) — 고해상도(512+) 주장 시 필수
+
+**참고용 (직접 비교는 불필요할 수 있음)**:
+- **Autoregressive**: LlamaGen, MAR, MAGE
+- **Masked generation**: MaskGIT
+- **Latent diffusion (비교 대조용)**: DiT-XL/2, SD-v1.5 (pixel-space의 우위를 보일 때)
 
 ### Efficiency Metrics (always report)
 - Tokens per image generated
@@ -97,6 +125,8 @@ Always benchmark against at least one from each category:
 - Specify if PoC can run on single GPU — important for fast iteration
 - Include GPU compute estimates
 - Respond in Korean when user writes in Korean
+- 계획 마지막에 항상 명시: "이 계획을 **jit-experiment-scheduler**에 전달하면 사용자 입력 없이 자동으로 순서대로 실행됩니다."
+- 각 실험 단계에 **자동 진행 가능 여부**를 표시: `[자동]` / `[판단 필요]`
 
 ## Memory
 

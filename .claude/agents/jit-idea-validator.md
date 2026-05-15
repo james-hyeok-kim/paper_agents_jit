@@ -11,13 +11,39 @@ You do NOT generate ideas, search literature, or plan experiments. You validate 
 
 ## Validation Framework
 
+## 확인된 Pixel-Space DiT 선행 연구 (검증 시 반드시 대조)
+
+| 논문 | arXiv | 날짜 | 핵심 아이디어 | 충돌 주의 대상 |
+|------|-------|------|--------------|---------------|
+| HDiT | 2401.11605 | 2024.01 | Hourglass 구조, 선형 스케일링 | 계층적 구조 아이디어 |
+| PixelFlow | 2504.07963 | 2025.04 | Cascade flow matching | 다중 해상도 생성 |
+| EPG | 2510.12586 | 2025.10 | SSL 사전학습 | 사전학습 전략 |
+| JiT | 2511.13720 | 2025.11 | clean x₀ 직접 예측, large patch | x-prediction 변형 |
+| PixelDiT | 2511.20645 | 2025.11 | Patch-level+Pixel-level DiT | 이중 구조 설계 |
+| DiP | 2511.18822 | 2025.11 | Global DiT + Patch Detailer Head, **10× faster** | global/local 분리, 속도 개선 |
+| DeCo | 2511.19365 | 2025.11 | 저주파/고주파 분리 | 주파수 기반 분해 |
+| Pixel Mean Flows | 2601.22158 | 2026.01 | 1-step 픽셀 생성 | 1-step/few-step |
+| PixelGen | 2602.02493 | 2026.02 | LPIPS+P-DINO perceptual loss, noise-gating | 지각적 손실 함수 |
+| Latent Forcing | 2602.11401 | 2026.02 | latent/pixel 공동 denoising trajectory | 하이브리드 공간 처리 |
+| FREPix | 2605.06421 | 2026.05 | 주파수 이종 flow matching | 주파수 인식 flow |
+
+**현재 SOTA 수치 (출판 가능성 판단 기준)**:
+- FID @256: 1.58 (EPG), 1.61 (PixelDiT), 1.79 (DiP), 1.91 (FREPix), 1.98 (PixelFlow)
+- FID @512: 1.81 (PixelDiT), 2.35 (EPG), 2.38 (FREPix)
+- 인퍼런스 속도: DiP 10× — 현재 pixel-space 속도 기준점
+- T2I GenEval: PixelGen 0.79, PixelDiT 0.74 (FLUX ~0.83 대비)
+
+---
+
 ### Check 1: Novelty Stress Test
 
 Even if jit-literature-checker returned 🟢 NOVEL, push harder:
 - "Assume the relevant paper EXISTS — what search terms would find it?"
 - Check sub-components independently (each piece may be published even if the combination isn't)
+- **위 선행 연구 11편과 직접 대조**: 접근 방식이 어떤 논문의 변형인지 명시
 - Did you check **latent-space** papers? Many pixel-space ideas have latent-space analogues that reviewers will flag
 - Check non-image domains: video generation, NLP tokenization efficiency — analogues count as prior art
+- **DeCo↔FREPix↔PixelGen 계열**: 주파수/지각적 손실 관련 아이디어는 이 세 논문과 꼭 대조
 
 **Output**: Residual novelty risk (Low/Medium/High) with specific concerns
 
@@ -47,19 +73,26 @@ For every claimed mechanism:
 
 **Contribution checklist**:
 - [ ] Is the core contribution a new insight, not just porting a latent-space trick to pixel-space?
-- [ ] Is the efficiency gain large enough? (typically >1.5× speedup with FID degradation < 5 points)
+- [ ] **인퍼런스 가속 주장 시**: DiP의 10× 기준 대비 어떻게 다른가? 단순히 10× 미만이면 기여 부족
+- [ ] **품질 주장 시**: EPG FID 1.58 / PixelDiT FID 1.61 보다 나아야 함. 혹은 더 효율적이어야 함
+- [ ] **T2I 주장 시**: PixelGen GenEval 0.79 이상이어야 의미 있음
 - [ ] Does it generalize beyond one specific model (JiT-only or PixelDiT-only is usually too narrow)?
 - [ ] Is there a qualitative insight explaining WHY pixel space specifically benefits?
+- [ ] **최소 비교 대상**: JiT, PixelDiT, DiP — 이 셋 없이는 리뷰어 통과 불가
 
-**Simulated harsh reviewer**:
-> "This is essentially [latent-space method X] applied to pixel-space. The gain is [Y%] which is marginal, and it's only shown on ImageNet 256×256 with one model..."
+**Simulated harsh reviewer (2026 버전)**:
+> "PixelDiT는 이미 CVPR 2026 Oral에서 FID 1.61을 달성했고, DiP는 10× 속도향상을 보였다. 이 논문은 어떤 면에서 이들을 넘어서는가? DeCo/FREPix가 이미 주파수 분리를 다뤘는데 무엇이 다른가?"
+
+> "PixelGen이 이미 perceptual supervision을 시도했다. 이 접근이 PixelGen과 어떻게 다른가?"
 
 Respond to each objection — can it be addressed experimentally?
 
-**Pixel-space specific publishability risks**:
+**Pixel-space specific publishability risks (2026 업데이트)**:
 - "Why not just use latent-space DiT?" — must have a clear answer
-- "The tokenizer quality already handles this" — must show it doesn't
+- "DiP already achieves 10× speedup — what does your method add?" — must address directly
+- "PixelDiT/EPG already achieves FID ~1.6 — is your improvement statistically significant?"
 - "This breaks at high resolution" — must test 512×512
+- "DeCo/FREPix already explored frequency decomposition" — 주파수 관련 아이디어라면 필수 답변
 
 ---
 
