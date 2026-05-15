@@ -1,0 +1,18 @@
+{
+  "baseline": {
+    "ms_per_img_median": 123.27,
+    "ms_per_img_std": 128.87,
+    "total_seconds": 371.2,
+    "num_images": 2000
+  },
+  "K3_tbased": {
+    "ms_per_img_median": 417.76,
+    "ms_per_img_std": 307.67,
+    "total_seconds": 1311.6,
+    "num_images": 2000,
+    "K": 3,
+    "policy": "t_based",
+    "T_split": 0.5
+  },
+  "speedup_2k": 0.2951
+}

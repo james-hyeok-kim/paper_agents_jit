@@ -1,0 +1,25 @@
+{
+  "setup": {
+    "model": "PixelDiT-XL",
+    "resolution": "256x256",
+    "num_steps": 20,
+    "cfg": 3.25,
+    "num_samples": 2000,
+    "reference_set": "ImageNet val 2K (2 per class, center crop 256, BICUBIC)",
+    "reference_path": "/data/jameskimh/imagenet_val_ref_2k",
+    "fid_tool": "pytorch-fid"
+  },
+  "results": {
+    "baseline_FID": 34.143,
+    "K3_tbased_FID": 36.047,
+    "FID_gap": 1.904,
+    "FID_gap_pct": 5.58
+  },
+  "verdict": "WEAK GO",
+  "notes": [
+    "20-step + 2K sample -> noise floor 높음. 절대 FID는 paper용 100-step + 50K 측정 필요.",
+    "FID gap 1.904는 IS drop 0.095과 일관된 방향(품질 약간 저하).",
+    "목표였던 gap < 1.5는 살짝 초과했으나 directional signal로는 양호.",
+    "timing 측정 (speedup 0.295x)은 GPU 외부 사용자 간섭 의심 -> 격리 환경에서 재측정 필요."
+  ]
+}

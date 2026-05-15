@@ -1,0 +1,20 @@
+{
+  "meta": {
+    "batch": 16,
+    "num_steps": 100,
+    "n_per_config": 256,
+    "method": "interleaved baseline/K3 forward, paired speedup"
+  },
+  "baseline": {
+    "median_ms": 400.79,
+    "mean_ms": 405.39,
+    "std_ms": 47.93
+  },
+  "K3_tbased": {
+    "median_ms": 309.61,
+    "mean_ms": 317.76,
+    "std_ms": 45.1
+  },
+  "speedup_median_of_pairs": 1.2733,
+  "speedup_median_of_medians": 1.2945
+}
