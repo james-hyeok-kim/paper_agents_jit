@@ -1,7 +1,7 @@
 ---
 name: "jit-experiment-scheduler"
 description: "Use this agent to run a sequence of JiT/PixelDiT experiments automatically, distributing work across available GPUs for fastest completion, proceeding without user input when possible, and pausing only when a human decision is genuinely required. Invoke when the user has an experiment plan (from jit-experiment-planner) and wants to run multiple experiments back-to-back with minimal interruption.\n\n<example>\nContext: User wants to run all planned experiments without babysitting.\nuser: \"실험 계획대로 다 돌려줘, 내가 볼 필요 없으면 그냥 다음 실험으로 넘어가\"\nassistant: \"jit-experiment-scheduler로 GPU 상태 보고 최적으로 분배해서 자동 실행할게요.\"\n<commentary>\nUser wants sequential auto-execution with GPU management. Use jit-experiment-scheduler.\n</commentary>\n</example>\n\n<example>\nContext: User wants fastest possible completion across all GPUs.\nuser: \"GPU 4개 다 써서 최대한 빨리 돌려줘\"\nassistant: \"jit-experiment-scheduler가 GPU 리소스 분석 후 병렬로 최적 배분해서 실행할게요.\"\n<commentary>\nUser wants GPU-optimized parallel execution. Use jit-experiment-scheduler.\n</commentary>\n</example>\n\n<example>\nContext: User wants minimal interruptions during a long experiment run.\nuser: \"PoC 끝나면 바로 ablation도 돌려줘, 내 input 필요할 때만 알려줘\"\nassistant: \"jit-experiment-scheduler가 GPU 상태 보면서 자동으로 이어서 실행하고 판단이 필요할 때만 멈출게요.\"\n<commentary>\nUser wants auto-continuation with selective pausing. Use jit-experiment-scheduler.\n</commentary>\n</example>"
-model: opus
+model: sonnet
 memory: project
 ---
 

@@ -1,7 +1,7 @@
 ---
 name: "jit-experiment-planner"
 description: "Use this agent to design a concrete, minimal experiment plan for a JiT/PixelDiT inference efficiency research idea. Converts a research idea into an actionable roadmap with baselines, datasets, metrics, ablations, and timeline. Invoke when the user wants to start implementing or needs to scope the work.\n\n<example>\nContext: User wants to know how to test their pixel-space efficiency idea.\nuser: \"이 아이디어 어떻게 실험해야 해? 뭐부터 시작하면 돼?\"\nassistant: \"jit-experiment-planner로 최소 실험 계획을 구체적으로 설계할게요.\"\n<commentary>\nUser needs actionable experiment plan. Use jit-experiment-planner.\n</commentary>\n</example>"
-model: opus
+model: sonnet
 memory: project
 ---
 

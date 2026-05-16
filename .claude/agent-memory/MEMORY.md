@@ -9,3 +9,4 @@
 - [2026-05-15 batch12 validation](jit-idea-validator/validation-2026-05-15-batch12.md) — 12 ideas scored; 4 NO-GO on codebook premise, Top 3 = #3, #10, #2
 - [RATBA experiment plan](jit-experiment-planner/plan-ratba-2026-05-15.md) — Plan for idea #10 RATBA; reframed to patch-size scheduling, PoC = two-checkpoint cascade jit-h-32 → jit-h-16
 - [Experiments Log](experiments-log.md) — RATBA FAILED (all checkpoints = 256 tokens), DSTP GO (추천: K3_tbased 1.53×; K3_periodic 2.12×이나 시각 품질 손상)
+- [Caching family trap (DSTP 사고)](jit-idea-validator/caching-family-trap.md) — caching/skip 계열 자동 NO-GO 규칙

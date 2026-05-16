@@ -122,3 +122,87 @@ Use shared memory at `/home/jovyan/workspace/paper_agents_jit/.claude/agent-memo
 Memory format: standard frontmatter + content. Add pointers to `MEMORY.md`.
 
 - Respond in Korean when user writes in Korean
+
+---
+
+## 🔴 CRITICAL: Diffusion Caching/Acceleration Family — 반드시 확인
+
+DSTP 검증 실패 회고(2026-05-15): "step-skip caching"이 novel이라 판정했으나
+TeaCache/SmoothCache/AdaCache/ProCache 등 거대 prior art가 있었음.
+**Inference 가속 아이디어는 반드시 아래 family들과 대조 후 verdict 발행.**
+
+### 1) Caching / Skip Family (DiT/U-Net 가속의 주력 분야)
+| 논문 | venue | arXiv | 핵심 |
+|------|-------|-------|------|
+| **DeepCache** | NeurIPS 2024 | 2312.00858 | U-Net mid-block caching + skip connection 활용 |
+| **Block Caching** | CVPR 2024 | 2312.03209 | Block-level caching, automatic schedule |
+| **T-GATE** | 2024 | 2404.02747 | Cross-attention timestep threshold 후 고정 |
+| **TeaCache** | CVPR 2025 | 2411.19108 | Timestep embedding L1 distance 기반 reuse, FLUX **2×**, Open-Sora **4.41×** |
+| **SmoothCache** | CVPRW 2025 | 2411.10510 | Layer-wise representation error로 adaptive caching, DiT 일반 |
+| **AdaCache** | ICCV 2025 | 2411.02397 | 비디오 DiT, content-aware adaptive cache, **4.49×** |
+| **HiCache** | 2025 | — | Hierarchical timestep-aware caching |
+| **ProCache** | AAAI 2026 | 2512.17298 | Constraint-aware caching + selective computation, **2.9×** |
+| **FastCache** | 2025 | 2505.20353 | Spatial-temporal hidden state caching |
+| **First Block Cache** | 2025 | — | 첫 block residual norm threshold |
+| **Learning-to-Cache** | NeurIPS 2024 | 2406.01733 | DiT layer caching 학습 |
+| **BWCache** | 2025 | 2509.13789 | Block-wise caching for video DiT |
+| **SpectralCache** | 2026 | 2603.05315 | Frequency-aware error-bounded caching |
+| **Foresight** | 2025 | — | Adaptive layer reuse |
+| **ERTACache** | 2025 | 2508.21091 | Error rectification + timestep adjustment |
+| **TaoCache** | 2025 | 2508.08978 | Structure-maintained video caching |
+
+**핵심 인사이트 (이미 일반 상식)**:
+> "Across diffusion timesteps, the feature variations of DiT blocks exhibit a **U-shaped pattern**:
+> early/late steps are sensitive (composition / detail), middle steps are tolerant (cacheable)."
+> → "Timestep-aware adaptive caching with **conservative endpoints, aggressive middle**" 자체는 published.
+
+### 2) Token Pruning / Merging Family
+- ToMe, AT-EDM (CVPR 2024), DyDiT (2024) — token-level skip
+- Token Merging for SD, Diff-Pruning
+
+### 3) Distillation / Few-step Family
+- Consistency Models (ICML 2023), iCT (2024)
+- LCM (Latent Consistency Models)
+- InstaFlow, PeRFlow (Rectified Flow distillation)
+- Progressive Distillation (ICLR 2022)
+- SiD, SiD-LSG (Score identity distillation)
+
+### 4) Sparse Attention Family
+- DiTFastAttn (NeurIPS 2024) — timestep-aware attention sparsity for DiT
+- Sparse Transformer, Linear attention variants
+- FlashAttention (이미 baseline)
+
+### 5) Speculative / Parallel Decoding (AR models)
+- LANTERN, Speculative Jacobi Decoding (SJD)
+- Medusa, SpecInfer (LLM, image AR 확장)
+
+---
+
+## 새 검증 프로토콜 (DSTP 사고 방지)
+
+**아이디어 받은 즉시 5 family 모두 체크**:
+
+```
+Inference 가속 아이디어:
+  □ Caching/skip family과 비교 (위 16개 논문 최소 7개 확인)
+  □ Token pruning/merging family과 비교
+  □ Distillation/few-step family과 비교
+  □ Sparse attention family과 비교
+  □ Speculative decoding family과 비교 (AR만)
+
+  □ "timestep aware" 키워드 즉시 trigger → TeaCache/SmoothCache/AdaCache 우선 확인
+  □ "block caching" / "layer caching" 즉시 trigger → DeepCache/Block Caching/Learning-to-Cache
+  □ "threshold" / "adaptive refresh" 즉시 trigger → First Block Cache/TeaCache
+  □ "U-shaped" / "middle steps tolerant" 즉시 trigger → SmoothCache/일반 상식
+```
+
+**Verdict 발행 직전 self-check**:
+1. 위 5 family 각각에서 가장 유사한 논문을 명시했는가?
+2. 그 논문과 차이점이 "X model에 적용" 뿐인가? → 🟡/🔴 (incremental)
+3. mechanism 자체가 다른가? → 그 차이가 paper-worthy인가?
+4. SOTA 수치 비교 — 우리 가속이 family 평균보다 **2배 이상** 빠른가?
+
+**자동 🔴 NO-GO 조건 추가**:
+- Caching/skip family와 "mechanism은 같고 model만 다름" → 🔴
+- "Timestep threshold + reuse" 형태 → 🔴 (TeaCache가 이미 모든 변형 커버)
+- 1.5× 미만 speedup with no quality improvement → 🔴 (가성비 부족)

@@ -1,7 +1,7 @@
 ---
 name: "jit-doc-organizer"
 description: "Use this agent to organize research findings into structured documents: literature surveys, related work sections, experiment result tables, paper section drafts, and research progress reports. Invoke when the user wants to compile literature findings, format experiment results for a paper, draft paper sections, or generate a research progress summary.\n\n<example>\nContext: User wants to organize collected papers into a related work section.\nuser: \"지금까지 찾은 논문들 related work 형태로 정리해줘\"\nassistant: \"jit-doc-organizer로 관련 논문들을 related work 섹션으로 정리할게요.\"\n<commentary>\nUser wants literature organized into a paper section. Use jit-doc-organizer.\n</commentary>\n</example>\n\n<example>\nContext: User wants experiment results formatted for the paper.\nuser: \"실험 결과들 논문 테이블로 만들어줘\"\nassistant: \"jit-doc-organizer로 실험 결과를 논문 퀄리티 테이블로 정리할게요.\"\n<commentary>\nUser wants results compiled into paper-ready format. Use jit-doc-organizer.\n</commentary>\n</example>\n\n<example>\nContext: User wants a research progress summary.\nuser: \"지금까지 연구 진행 상황 정리해줘\"\nassistant: \"jit-doc-organizer로 전체 연구 진행 상황을 요약할게요.\"\n<commentary>\nUser wants a structured progress report. Use jit-doc-organizer.\n</commentary>\n</example>"
-model: opus
+model: sonnet
 memory: project
 ---
 

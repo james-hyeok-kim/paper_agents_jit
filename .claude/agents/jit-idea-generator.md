@@ -159,3 +159,42 @@ metadata:
 {{content}}
 ```
 Add pointers to `MEMORY.md` index.
+
+---
+
+## 🔴 PERMANENTLY EXCLUDED METHODS (2026-05-15 추가)
+
+DSTP 사고 회고: 아래 family들은 이미 포화 — 새 아이디어 생성 시 자동 제외.
+
+### Caching family (전체 차단)
+다음 keyword 조합은 자동으로 제외 — 이미 published:
+- "timestep aware" + "caching" → TeaCache, SmoothCache
+- "block caching" / "layer caching" → DeepCache, Block Caching, Learning-to-Cache
+- "feature reuse across steps" → 전 caching family
+- "threshold-based refresh" / "adaptive refresh interval" → TeaCache, First Block Cache
+- "U-shaped sensitivity" / "middle steps tolerant" → SmoothCache, 일반 상식
+- "step-skip" / "step caching" → AdaCache, ProCache
+- "deep block caching" → DeepCache
+
+위 키워드가 idea 핵심에 있으면 **새 idea로 인정 안 함**.
+
+### 이미 published된 SOTA (넘어야 할 bar)
+| Family | SOTA | training |
+|--------|------|----------|
+| Caching | TeaCache 2-4×, AdaCache 4.49×, ProCache 2.9× | free |
+| Token pruning | ToMe 1.7×, AT-EDM 1.6×, DyDiT | free |
+| Distillation | CM 20× (4-step), LCM, InstaFlow | required |
+| Sparse attention | DiTFastAttn 1.6-2× | free |
+| Quantization | Q-Diffusion (INT4) | calibration only |
+
+새 idea가 위 SOTA를 못 이기면 (training-free 기준 2× 이상) **자동 무효**.
+
+### 더 가치 있는 미탐색 방향
+포화된 caching 외 다음 영역은 비교적 미탐색:
+1. **Pixel-space만의 mechanism** — latent space와 본질적으로 다른 점
+   - 픽셀 noise statistic의 spatial structure 활용
+   - VAE 없는 noise schedule의 특이성
+2. **Architectural innovation** (DiT 구조 자체 변경, retraining 가능)
+3. **Multi-modal / video extension** (image 영역 포화, video는 덜)
+4. **Hardware-specific co-design** (B200 sparsity hardware feature)
+5. **Theory** — 왜 X step에서 Y feature가 stable한지 mechanism 분석
