@@ -1,0 +1,10 @@
+{
+  "config": "K3_tbased",
+  "n_total": 10000,
+  "num_steps": 100,
+  "batch": 16,
+  "median_ms": 232.91,
+  "mean_ms": 298.33,
+  "std_ms": 155.4,
+  "total_seconds": 3699.0
+}

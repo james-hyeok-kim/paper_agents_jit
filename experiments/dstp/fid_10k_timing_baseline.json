@@ -1,0 +1,10 @@
+{
+  "config": "baseline",
+  "n_total": 10000,
+  "num_steps": 100,
+  "batch": 16,
+  "median_ms": 292.4,
+  "mean_ms": 309.5,
+  "std_ms": 83.41,
+  "total_seconds": 4301.3
+}

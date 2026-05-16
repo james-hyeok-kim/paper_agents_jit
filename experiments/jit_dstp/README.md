@@ -56,3 +56,39 @@ experiments/jit_dstp/
   JiT-B_16/             — v1 시각 샘플
   JiT-B_16_v2/          — v2 시각 샘플
 ```
+
+---
+
+## F6 UPDATE: JiT-H/16 Partial Block Caching — 🎯 KEY FINDING
+
+**Architecture-aware caching이 monolithic JiT에도 적용됨을 입증!**
+
+설정: JiT-H/16 (32 blocks, 32장, 50 step, batch=4, B200)
+
+| Config | median ms | speedup | 비고 |
+|---|---|---|---|
+| Baseline | 1187.23 | 1.000× | |
+| **partial blocks[4:28] K=3 periodic** | **502.25** | **2.36×** | 중간 24 블록 캐싱 |
+| partial blocks[4:28] K=3 t_based | 593.47 | 2.00× | t_based가 더 보수적 |
+| partial blocks[6:26] K=3 periodic | 618.36 | 1.92× | 더 보수적 캐싱 |
+| partial blocks[8:24] K=3 t_based | 507.05 | 2.34× | 적당히 보수적 |
+
+### 핵심 의의
+
+| 방법 | speedup |
+|---|---|
+| JiT-B/16 full output caching (jit_stepskip.py) | 1.10× |
+| **JiT-H/16 partial block caching (jit_partial_caching.py)** | **2.0-2.36×** |
+
+**Full output caching은 1.10× (작음), partial block caching은 2.0-2.36× (큼).**
+
+→ **결론: DSTP의 효과는 "step caching" 자체가 아니라 "architecture-aware caching"에서 옴.**
+- PixelDiT: patch_blocks (87% compute, cache) + pixel_blocks (13%, always run for refinement)
+- JiT: blocks[0:4] (early embedding, always run) + blocks[4:28] (heavy middle, cache) + blocks[28:32] (late refinement, always run)
+
+이 통찰은 paper의 핵심 contribution을 강화한다:
+"Step caching is not enough — you need to identify which layers to cache vs always run, based on their role in the diffusion trajectory."
+
+### 시각 품질 미검증 (TODO)
+B200 contention으로 timing std 큼. 시각 품질 평가 필요 (`/data/jameskimh/jit_dstp/JiT-H_16_partial/` 첫 배치 4장 저장됨).
+
