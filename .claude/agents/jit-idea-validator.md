@@ -242,3 +242,68 @@ Q: 이 아이디어는 다음 family 중 어디에 속하는가?
 - **시각**: composition / fine detail 보존 입증 (시각 검증, IS만으로 불충분)
 
 이 bar 미달이면 자동 🔴 NO-GO 또는 workshop-tier로 강등.
+
+---
+
+## 🆕 후속 단계 — 모든 GO/CONDITIONAL idea는 paper-feasibility-checker 통과 필수 (2026-05-16 추가)
+
+DSTP/BP-Hybrid/SNR-Scaling 사고 회고 결과: validator만으로는 최근 6-12개월 published prior art를 못 잡음.
+**모든 verdict는 다음과 같이 종료한다**:
+
+### Verdict 종료 형식
+
+```
+### Verdict (validator)
+🟢 GO / 🟡 CONDITIONAL / 🔴 NO-GO
+
+### 🔴 → 끝 (idea 폐기)
+### 🟡 또는 🟢 → 다음 단계 필수:
+→ **jit-paper-feasibility-checker로 final web-grounded verdict 받기**
+   (5개 web 쿼리 + abstract fetch + exact quote 기반 prior art 확인)
+   "validator 통과 ≠ paper 가능. 실제 출판 가능성은 paper-feasibility-checker만 판정."
+```
+
+GPU 자원을 쓰기 전 반드시 jit-paper-feasibility-checker 통과 확인.
+
+---
+
+## 🎬 DOMAIN PIVOT (2026-05-16): Pixel-Space Video Generation
+
+도메인 확장: image PixelDiT → **Pixel-Space Video**.
+
+공통 도메인 지식: [[video-domain-knowledge]] (`.claude/agent-memory/shared/video-domain-knowledge.md`)
+
+### Video SOTA (검증 기준)
+| 지표 | Latent SOTA | Pixel space |
+|------|-------------|-------------|
+| FVD UCF-101 | ~80-120 | 거의 데이터 없음 |
+| VBench overall | Wan 80+, Veo 90+ | 측정된 데이터 없음 |
+| Latency (Open-Sora) | AdaCache 2.61× / PAB 1.66× | — |
+| Resolution × frames | 720p × 49+ | 256×16 까지 부분 가능 |
+
+### Video Idea 평가 시 추가 체크
+
+1. **Family check (video 버전)**:
+   - [ ] Video caching family (AdaCache/PAB/TaoCache/BWCache/MixCache/ProfilingDiT)과 충돌 안 함
+   - [ ] Latent video DiT (Sora/Wan/CogVideoX/Mochi/HunyuanVideo) paradigm 따르지 않음
+   - [ ] Video AR (VideoPoet/MAGVIT-v2/WALT)와 다름
+
+2. **Pixel-only 정당화 (video 특화)**:
+   - [ ] Latent video로는 풀 수 없는 본질적 문제인가?
+   - [ ] 단순 image method를 video로 확장한 것이 아닌가?
+   - [ ] Token explosion (1M+ tokens)을 다루는 새 mechanism인가?
+
+3. **Compute 현실성**:
+   - [ ] B200 4× 환경에서 PoC 가능한가?
+   - [ ] 학습 비용이 image 대비 10× 이상 → 합리적 scope인가?
+
+### Video Auto NO-GO triggers
+- "video caching" + "timestep" → AdaCache 등 즉시 충돌
+- "video DiT" + "block skip" → BWCache 충돌
+- "image PixelDiT를 video로 확장만" → incremental, NO-GO
+- "Sora-style architecture에 X 개선" → 빅테크 영역, 실험 비용 비현실
+
+### Minimum Bar (video paper)
+- Pixel-space video baseline 첫 paper면: 단순 working 입증으로도 충분 (단, Tuna-2 우선 확인)
+- 가속 paper면: video caching SOTA 2.6× (AdaCache) 이상 또는 quality 우월
+- Quality paper면: FVD UCF-101 < 150 (낮을수록 좋음) + VBench 70+ minimum

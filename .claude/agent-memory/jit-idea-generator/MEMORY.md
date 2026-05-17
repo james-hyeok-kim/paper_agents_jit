@@ -1,0 +1,4 @@
+- [Idea Batch 2026-05-15](idea-batch-2026-05-15.md) — First batch of 12 JiT/PixelDiT ideas (index)
+- [Idea Batch 2026-05-16 (index)](idea-batch-2026-05-16.md) — Second batch index (12 ideas, scores, gaps)
+- [Idea Batch 2026-05-16 (full)](idea-batch-2026-05-16-full.md) — Full mechanism detail for all 12 ideas (for validator)
+- [Excluded Methods](excluded-methods.md) — Published pixel-DiT methods that must not be re-proposed

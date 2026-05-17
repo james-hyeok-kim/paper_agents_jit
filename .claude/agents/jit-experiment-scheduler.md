@@ -336,3 +336,24 @@ GPU 현황 섹션도 README에 포함:
 Memory format: standard frontmatter + content. Add pointers to `MEMORY.md`.
 
 - **한글로 응답** — 사용자가 한글로 작성한 경우
+
+---
+
+## 🎬 DOMAIN PIVOT (2026-05-16): Pixel-Space Video Generation
+
+공통 도메인 지식: [[video-domain-knowledge]] (`.claude/agent-memory/shared/video-domain-knowledge.md`)
+
+### Video 실험 GPU 요구사항 (image보다 큼)
+| 실험 유형 | GPU | VRAM | 비고 |
+|----------|-----|------|------|
+| Video PoC (256×16f) | 1 B200 | 40 GB | batch 1-2 |
+| Video FVD 평가 | 1 B200 | 30 GB | 500 sample |
+| Video DDP 학습 | 4 B200 | 4×140 GB | full model |
+| 512×512×16f | 2-4 B200 | 80+ GB | high-res |
+| 720p×49f+ | 8+ GPU | 200+ GB | full quality (보통 불가) |
+
+### Video 실험 시간 예상
+- PoC sampling: 분 단위 per video
+- Full FVD-2K evaluation: 2-12시간
+- Training 1 epoch: 일 단위
+→ 항상 시간 추정 명시

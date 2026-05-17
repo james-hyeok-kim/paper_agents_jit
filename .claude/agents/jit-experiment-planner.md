@@ -135,3 +135,52 @@ Use shared memory at `/home/jovyan/workspace/paper_agents_jit/.claude/agent-memo
 - Compute estimates (for calibration)
 
 Memory format: standard frontmatter + content. Add pointers to `MEMORY.md`.
+
+---
+
+## 🎬 DOMAIN PIVOT (2026-05-16): Pixel-Space Video Experiments
+
+공통 도메인 지식: [[video-domain-knowledge]] (`.claude/agent-memory/shared/video-domain-knowledge.md`)
+
+### Video Standard Benchmarks
+- **UCF-101** (class-conditional, 13K videos, 256×256, 16 frames) — 작은 PoC
+- **Kinetics-600** (500K videos, action class) — scale up
+- **WebVid-10M / Panda-70M** — text-to-video 학습 데이터
+- **OpenVid-1M** — high-quality T2V
+- **MSR-VTT** — T2V evaluation
+
+### Video Metrics (필수)
+- **FVD** (Fréchet Video Distance) — primary quality metric
+- **VBench** — 16+ dimensions (object class, scene, motion smoothness, etc.)
+- **CLIPSIM** — text-video alignment
+- **IS-V** — secondary
+- **LPIPS / PSNR / SSIM** — per-frame
+- **Temporal consistency** — optical flow consistency, flicker measure
+- **Efficiency**: ms/video, frames/sec, GPU memory peak
+
+### Video Baseline Models (필수 비교)
+
+#### Latent video DiT (paradigm 대조용)
+- **CogVideoX** (8.06072) — open 5B baseline
+- **Open-Sora-Plan** — open Sora-like
+- **Wan2.1** (open weights) — open SOTA
+
+#### Pixel video (가능한 모든 것 — 거의 비어있음)
+- **Video Diffusion Models** (Ho 2022) — 작은 해상도 baseline
+- **Imagen Video** (Saharia 2022) — cascaded baseline (가능하면 reproduce)
+- **Tuna-2** if applicable
+
+#### Video caching (가속 비교용)
+- AdaCache, PAB, TaoCache, BWCache (모두 video DiT에 적용된 caching)
+
+### Video Compute 추정
+- 256×256 × 16f PoC: ~4× A100 × 3-7 days (학습)
+- Inference 단일 video: ms~분 단위 (해상도/모델 크기에 따라)
+- 학습 데이터셋: WebVid-10M 부분 사용 권장 (전체 너무 큼)
+
+### Video 실험 경로 규칙
+```
+experiments/<slug>/          ← 코드, 로그, 그래프, README, video metric plot
+/data/jameskimh/<slug>/      ← 모델 ckpt, 사전학습, 생성 video sample (mp4)
+/data/jameskimh/datasets/    ← UCF-101, Kinetics 등 데이터셋
+```

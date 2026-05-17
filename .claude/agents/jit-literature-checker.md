@@ -206,3 +206,83 @@ Inference 가속 아이디어:
 - Caching/skip family와 "mechanism은 같고 model만 다름" → 🔴
 - "Timestep threshold + reuse" 형태 → 🔴 (TeaCache가 이미 모든 변형 커버)
 - 1.5× 미만 speedup with no quality improvement → 🔴 (가성비 부족)
+
+---
+
+## Workflow position (2026-05-16 갱신)
+
+이 agent는 1차 literature check를 담당. validator가 framework로 idea를 stress-test한 후,
+**최종 paper-feasibility는 `jit-paper-feasibility-checker`가 web search로 결정**.
+
+```
+이 agent (1차) → validator (framework) → jit-paper-feasibility-checker (web-grounded final) → planner
+```
+
+만약 사용자가 "이 idea가 paper 되는지" 직접 물으면, 이 agent가 1차 답변 후
+`jit-paper-feasibility-checker`로 final verdict 받기를 권장.
+
+---
+
+## 🎬 DOMAIN PIVOT (2026-05-16): Pixel-Space Video Generation
+
+**도메인 확장**: image PixelDiT 효율화 → **Pixel-Space Video Generation** 추가.
+
+공통 도메인 지식: [[video-domain-knowledge]] (`.claude/agent-memory/shared/video-domain-knowledge.md`)
+
+### Video-specific Prior Art (반드시 대조)
+
+#### 1) Latent Video DiT (현재 dominant)
+| 모델 | arXiv / 출시 | 핵심 |
+|------|-------------|------|
+| Sora | 2024 OpenAI | 3D autoencoder, spacetime patches |
+| **CogVideoX** | 2408.06072 | open 5B, VAE 1:1024 |
+| **HunyuanVideo** | 2412.03603 | Tencent 13B open |
+| **Wan / Wan2.1** | 2024-2025 Alibaba | T2V+I2V 통합 |
+| **Mochi** | 2024 Genmo | 10B open |
+| **LTX-Video** | 2501.00103 | realtime 2× faster than playback |
+| **MovieGen** | 2024 Meta | 30B |
+| **Open-Sora / Open-Sora-Plan** | open Sora-like |
+| **PyramidFlow** | pyramidal video |
+| **SemanticGen** | 2512.20619 | semantic 압축 video |
+| Kling / Veo / Gen3 | 상용 |
+
+#### 2) Pixel-Space Video Diffusion (대부분 비어있음 — opportunity)
+| 모델 | 연도 | 비고 |
+|------|------|------|
+| **Video Diffusion Models** (Ho) | 2022 | 원조, 작은 해상도 |
+| **Imagen Video** | 2022 Google | cascaded pixel, 7 sub-model |
+| **Tuna-2** | 2604.24763 (2026) | encoder 없이 pixel video token 처리 (multimodal) |
+
+→ 2022 이후 사실상 없음. **거의 백지 상태** → idea opportunity.
+
+#### 3) Video Diffusion Caching (포화 — 자동 NO-GO)
+| 논문 | arXiv | 가속 |
+|------|-------|------|
+| **AdaCache** | 2411.02397 ICCV 2025 | 2.61× Open-Sora |
+| **PAB** Pyramid Attention Broadcast | 2024 | 1.66× |
+| **TaoCache** | 2508.08978 | structure-maintained |
+| **BWCache** | 2509.13789 | 1.61× block-wise |
+| **MixCache** | 2508.12691 | mixture |
+| **ProfilingDiT** | 2025 | profile-based adaptive |
+
+#### 4) Video AR / Discrete
+- VideoPoet (Google 2024)
+- MAGVIT-v2 (2310.05737)
+- W.A.L.T. (2024)
+
+#### 5) Video Diffusion Distillation
+- T2V-Turbo, VideoCrafter Turbo, AnimateLCM
+- LADD (Latent Adversarial Distillation)
+
+### Video-specific Search Query Templates
+- `"pixel space video diffusion" arxiv 2025 2026`
+- `"video diffusion transformer" pixel space site:arxiv.org`
+- `"end-to-end video generation" without VAE`
+- `"frame-difference" OR "motion-aware" video diffusion acceleration`
+- `"video diffusion" "no VAE" OR "encoder-free"`
+- Cross-check video caching list 위에서 (재실행 금지)
+
+### Video Search Targets
+- arXiv (cs.CV) past 18 months
+- CVPR 2025/2026, ICCV 2025, NeurIPS 2025, SIGGRAPH 2025
+- 산업: OpenAI (Sora), Google (Veo), Meta (MovieGen), Alibaba (Wan), Tencent (Hunyuan), ByteDance (Seed-Video), Lightricks (LTX), Genmo (Mochi)

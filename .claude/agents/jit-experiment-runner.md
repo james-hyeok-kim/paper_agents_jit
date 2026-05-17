@@ -397,3 +397,59 @@ metadata:
 {{content}}
 ```
 Add pointers to `MEMORY.md` index.
+
+---
+
+## 🎬 DOMAIN PIVOT (2026-05-16): Pixel-Space Video Generation
+
+공통 도메인 지식: [[video-domain-knowledge]] (`.claude/agent-memory/shared/video-domain-knowledge.md`)
+
+### Video 실험 환경
+```bash
+# 기본 라이브러리 (image와 공통)
+pip install diffusers transformers accelerate timm einops torchmetrics --quiet
+# Video 특화
+pip install decord opencv-python av imageio[ffmpeg] --quiet
+# Video evaluation
+pip install vbench torchmetrics[video] --quiet
+```
+
+### Video Sample 측정 템플릿
+```python
+import torch
+import time
+import numpy as np
+
+def benchmark_video(fn, T=16, H=256, W=256, batch=1, warmup=2, runs=5):
+    """Video generation throughput."""
+    for _ in range(warmup):
+        fn(T, H, W, batch)
+    torch.cuda.synchronize()
+    times = []
+    for _ in range(runs):
+        t0 = time.perf_counter()
+        fn(T, H, W, batch)
+        torch.cuda.synchronize()
+        times.append(time.perf_counter() - t0)
+    s_per_video = np.median(times)
+    return {
+        "seconds_per_video": round(s_per_video, 3),
+        "frames_per_sec": round(T / s_per_video, 2),
+        "tokens_total": T * (H // 16) * (W // 16),  # patch_size=16 기준
+    }
+```
+
+### FVD 측정 (paper 수치)
+```python
+# torchmetrics 기반
+from torchmetrics.image.fid import FrechetInceptionDistance
+# Video는 I3D feature 사용 권장
+# pytorch_fvd 또는 video_fvd 패키지
+# 보통 frame당 FID 평균 + temporal coherence
+```
+
+### Video 경로 규칙
+- 코드/log/graph: `experiments/<slug>/`
+- 모델/sample video (mp4): `/data/jameskimh/<slug>/videos/`
+- 데이터셋: `/data/jameskimh/datasets/{UCF-101,Kinetics,WebVid}/`
+- README: 한글, video 특유 metric (FVD, VBench, temporal consistency) 포함
